@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Anime Release Calendar</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="hero">
+    <div class="overlay"></div>
+
+    <header class="navbar">
+      <div class="logo">AniCalendar</div>
+      <nav>
+        <ul class="nav-links">
+          <li><a href="#">Sign In</a></li>
+          <li><a href="#">Create Account</a></li>
+          <li><a href="upcoming.html">Upcoming</a></li>
+          <li><a href="completed.html">Completed</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <div class="hero-text">
+      <h1>Track the Release Date of Animes</h1>
+      <h2>Know Exactly When A New Episode Is Released<br /> Review The Animes You've Already Watched</h2>
+      <button class="cta-button">Get started — it’s free!</button>
+    </div>
+  </div>
+
+  <section class="section-base features">
+    <h2>What is AniCalendar?</h2>
+    <p>AniCalendar is a web application that helps anime enthusiasts keep track of upcoming anime releases and review completed series. With a user-friendly interface, you can easily find out when your favorite anime episodes are airing and share your thoughts on the ones you've watched.</p>
+    <p>Whether you're a casual viewer or a hardcore fan, AniCalendar is designed to enhance your anime-watching experience.</p>
+    <p>Join our community of anime lovers and never miss an episode again!</p>
+    </section>
+
+
+  <section class="section-base airing">
+    <p>Top Airing</p>
+    <div id="top-airing-container" class = "top-container"></div>
+    <p>Most Popular</p>
+    <div id="top-completed-container" class = "top-container"></div>
+  </section>
+
+<script src="topAiring.js" defer></script>
+
+</body>
+<footer>
+    <div class="footer-content">
+        <p class = footer>AniCalendar • 2025</p>
+        <p>Follow us on <a href="#">Twitter</a>, <a href="#">Facebook</a>, and <a href="#">Instagram</a>.</p>
+    </div>
+</footer>
+</html>
