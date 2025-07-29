@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Anime Release Calendar</title>
   <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
   <div class="hero">
@@ -14,11 +15,11 @@
       <div class="logo">AniCalendar</div>
       <nav>
         <ul class="nav-links">
-          <li><a href="#">Sign In</a></li>
-          <li><a href="#">Create Account</a></li>
           <li><a href="upcoming.html">Upcoming</a></li>
           <li><a href="completed.html">Completed</a></li>
           <li><a href="contact.html">Contact</a></li>
+          <li><a href="#" id="openModalBtn">Sign Up</a></li>
+          <li><a href="#" id = "openModalBtn2">Login</a></li>
         </ul>
       </nav>
     </header>
@@ -26,7 +27,44 @@
     <div class="hero-text">
       <h1>Track the Release Date of Animes</h1>
       <h2>Know Exactly When A New Episode Is Released<br /> Review The Animes You've Already Watched</h2>
-      <button class="cta-button">Get started — it’s free!</button>
+      <button id = "openModalBtn" class="cta-button">Get started — it’s free!</button>
+    </div>
+  </div>
+
+  <!-- modal -->
+  <div id="signupModal" class = "modal">
+    <div class="modal-content">
+      <h2 class="modal-header">Create an Account</h2>
+      <p>Sign up to track anime, leave reviews, and more!</p>
+      <form id="signupForm">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" required placeholder="">
+
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" required placeholder="">
+
+        <button type="submit" class = "submit-btn">SIGN UP</button>
+        <button class = "google-btn"><i class="fab fa-google"></i> Continue with Google</button>
+        <p class="login-link">Already have an account? <a href="#">Login</a></p>
+      </form>
+    </div>
+  </div>
+
+  <div id="loginModal" class = "modal">
+    <div class="modal-content">
+      <h2 class="modal-header">Log In</h2>
+      <p>Log in to track anime, leave reviews, and more!</p>
+      <form id="loginForm">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" required placeholder="">
+
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" required placeholder="">
+
+        <button type="submit" class = "submit-btn">LOG IN</button>
+        <button class = "google-btn"><i class="fab fa-google"></i> Continue with Google</button>
+        <p class="signup-link">Don't have an Account <a href="#">Create An Account</a></p>
+      </form>
     </div>
   </div>
 
@@ -47,11 +85,21 @@
 
 <script src="topAiring.js" defer></script>
 
+
+
+
 </body>
-<footer>
-    <div class="footer-content">
-        <p class = footer>AniCalendar • 2025</p>
-        <p>Follow us on <a href="#">Twitter</a>, <a href="#">Facebook</a>, and <a href="#">Instagram</a>.</p>
-    </div>
+<footer class = "site-footer">
+  <div class="footer-links">
+      <a href="#">Help Center</a></li>
+      <a href="contact.html">About Us</a></li>
+  </div>
+  <div class="footer-social">
+      <div class="social-icons">
+        <a href="#"><i class="fab fa-instagram"></i></a>
+        <a href="https://www.linkedin.com/in/kevinntrann/"><i class="fab fa-linkedin-in"></i></a>
+      </div>
+      <span>AniCalendar • Kevin Tran </span>
+  </div>
 </footer>
 </html>

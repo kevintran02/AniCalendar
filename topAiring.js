@@ -77,5 +77,56 @@ async function fetchTopCompleted(){
     }
 }
 
+
+
 fetchTopCompleted();    
 fetchTopAiring();
+
+// Modal
+
+document.addEventListener('DOMContentLoaded', () => {
+    const signupModal = document.getElementById('signupModal');
+    const loginModal = document.getElementById('loginModal');
+    
+    const openSignupBtns = document.querySelectorAll('#openModalBtn');
+    const openLoginBtn = document.getElementById('openModalBtn2');
+
+    openSignupBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            signupModal.style.display = 'block';
+            loginModal.style.display = 'none';
+        });
+    });
+
+    openLoginBtn.addEventListener('click', () => {
+        loginModal.style.display = 'block';
+        signupModal.style.display = 'none';
+    }
+    );
+
+    const LoginToSignUpLink = document.querySelector('#loginModal .signup-link a');
+    if(LoginToSignUpLink) {
+        LoginToSignUpLink.addEventListener('click', (e) => {
+            e.preventDefault()
+            signupModal.style.display = 'block';
+            loginModal.style.display = 'none';
+        });
+    }
+  
+    const SignUpToLoginLink = document.querySelector('#signupModal .login-link a');
+    if (SignUpToLoginLink) {
+        SignUpToLoginLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            loginModal.style.display = 'block';
+            signupModal.style.display = 'none';
+        });
+    }
+
+    window.addEventListener('click', (e) => {
+        if (e.target === signupModal) signupModal.style.display = 'none';
+        if (e.target === loginModal) loginModal.style.display = 'none';
+
+    });
+});
+
+
