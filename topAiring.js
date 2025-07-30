@@ -127,6 +127,104 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.target === loginModal) loginModal.style.display = 'none';
 
     });
-});
 
+    const signupForm = document.getElementById('signupForm');
+    signupForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const email = signupForm.email.value.trim();
+    const password = signupForm.password.value.trim();
+
+    try {
+      const res = await fetch('http://localhost:5000/api/signup', {  // change URL if needed
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        alert('Signup successful! You can now log in.');
+        signupForm.reset();
+        // Optionally switch to login modal after signup
+        signupModal.style.display = 'none';
+        loginModal.style.display = 'block';
+      } else {
+        alert(data.message || 'Signup failed. Please try again.');
+      }
+    } catch (error) {
+      console.error('Signup error:', error);
+      alert('Signup failed due to a network error.');
+    }
+  });
+
+  // --- Add login form submission ---
+  const loginForm = document.getElementById('loginForm');
+  loginForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const email = loginForm.email.value.trim();
+    const password = loginForm.password.value.trim();
+
+    try {
+      const res = await fetch('http://localhost:5000/api/login', {  // change URL if needed
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        alert('Login successful!');
+        loginForm.reset();
+        loginModal.style.display = 'none';
+        // Store token for future authenticated requests
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('email', data.email);
+        updateNavbar();  // Update navbar to reflect login status
+
+        // Optionally redirect user or update UI to show logged-in status
+      } else {
+        alert(data.message || 'Login failed. Please check your credentials.');
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      alert('Login failed due to a network error.');
+    }
+  });
+
+  //Logout functionality
+  function updateNavbar(){
+    const token = localStorage.getItem('token');
+    const email = localStorage.getItem('email');
+    const authButtons = document.querySelectorAll('.auth-button');
+    const userInfo = document.getElementById('userInfo');
+    const userEmail = document.getElementById('userEmail');
+    if (token) {
+        authButtons.forEach(button => button.style.display = 'none');
+        if(userInfo) userInfo.style.display = 'inline';
+        if(userEmail) userEmail.textContent = email;
+    }
+    else{
+        authButtons.forEach(button => button.style.display = 'inline'); 
+        if(userInfo) userInfo.style.display = 'none';
+        if(userEmail) userEmail.textContent = '';
+    }
+  }
+
+  const logoutBtn = document.getElementById('logoutBtn');
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', () => {
+      localStorage.removeItem('token');
+      localStorage.removeItem('email');
+      updateNavbar();
+      alert('You have been logged out.');
+    });
+  }
+
+  updateNavbar();
+
+});
 
