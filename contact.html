@@ -2,11 +2,83 @@
 <html>
 <head>
     <meta charset="UTF-8" />
-    <title>title</title>
+    <title>Contact</title>
     <link rel="stylesheet" href="styles.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
-    
+    <header class="navbar">
+        <div class="logo" style = "color:white"> <a href="index.html">AniCalendar</a></div>
+        <nav>
+          <ul class="nav-links">
+            <li><a href="upcoming.html">Upcoming</a></li>
+            <li><a href="completed.html">Completed</a></li>
+            <li><a href="contact.html">Contact</a></li>
+            <li class="auth-button"><button id="openModalBtn">Sign Up</a></li>
+            <li class="auth-button"><button id = "openModalBtn2">Login</a></li>
+            <li class = "auth-button" id = "userInfo" style = "display:none;">
+              <a href="calendar.html">My Calendar</a>
+              <button id = "logoutBtn">Logout</a>
+            </li>
+          </ul>
+        </nav>
+      </header>
+
+    <div class="contact-container">
+        <h1>Contact Us</h1>
+        <img src="images/contact.gif" alt="contact-img" style="width: 100px">
+        <p>If you have any questions or feedback, feel free to reach out!</p>
+        <form id="contactForm">
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" required>
+
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email"required>
+
+            <label for="message">Message:</label>
+            <textarea id="message" name="message" style="width:100%; height:150px" required></textarea>
+
+            <button type="submit" class="submit-btn">Send Message</button>
+        </form>
+    </div>
+
+      <!-- modal -->
+    <div id="signupModal" class = "modal">
+    <div class="modal-content">
+      <h2 class="modal-header">Create an Account</h2>
+      <p>Sign up to track anime, leave reviews, and more!</p>
+      <form id="signupForm">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" required placeholder="">
+
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" required placeholder="">
+
+        <button type="submit" class = "submit-btn">SIGN UP</button>
+        <button class = "google-btn"><i class="fab fa-google"></i> Continue with Google</button>
+        <p class="login-link">Already have an account? <a href="#">Login</a></p>
+      </form>
+    </div>
+  </div>
+
+  <div id="loginModal" class = "modal">
+    <div class="modal-content">
+      <h2 class="modal-header">Log In</h2>
+      <p>Log in to track anime, leave reviews, and more!</p>
+      <form id="loginForm">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" required placeholder="">
+
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" required placeholder="">
+
+        <button type="submit" class = "submit-btn">LOG IN</button>
+        <button class = "google-btn"><i class="fab fa-google"></i> Continue with Google</button>
+        <p class="signup-link">Don't have an Account <a href="#">Create An Account</a></p>
+      </form>
+    </div>
+  </div>
+
+    <script src="topAiring.js" defer></script>
 </body>
 </html>
