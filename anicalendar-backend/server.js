@@ -21,6 +21,7 @@ mongoose.connect(process.env.MONGO_URI,)
 const userSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
+  animeList: {type: [String], default: []}, 
 });
 
 const User = mongoose.model('User', userSchema);
@@ -71,6 +72,54 @@ app.post('/api/login', async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 });
+
+function authenticateToken(req, res, next) {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader?.split(' ')[1];
+
+  if (!token) return res.sendStatus(401);
+
+  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+    if (err) return res.sendStatus(403);
+    req.user = user;
+    next();
+  });
+}
+
+
+app.get('/api/user/anime-list', authenticateToken, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    res.json({ animeList: user.animeList });
+  } catch (err) {
+    console.error('Fetch anime list error:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+app.post('/api/user/anime-list', authenticateToken, async (req, res) => {
+  const { animeList } = req.body;
+
+  if (!Array.isArray(animeList)) {
+    return res.status(400).json({ message: 'animeList must be an array of titles' });
+  }
+
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    user.animeList = animeList;
+    await user.save();
+
+    res.json({ message: 'Anime list saved successfully' });
+  } catch (err) {
+    console.error('Save anime list error:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
