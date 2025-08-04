@@ -212,6 +212,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if(userInfo) userInfo.style.display = 'none';
         if(userEmail) userEmail.textContent = '';
     }
+
   }
 
   const logoutBtn = document.getElementById('logoutBtn');
@@ -221,6 +222,8 @@ document.addEventListener('DOMContentLoaded', () => {
       localStorage.removeItem('email');
       updateNavbar();
       alert('You have been logged out.');
+      window.location.href = 'index.html';
+
     });
   }
 
@@ -228,3 +231,248 @@ document.addEventListener('DOMContentLoaded', () => {
 
 });
 
+//Calendar
+let currentAiring = []; 
+let addedAnime = []; 
+
+document.addEventListener('DOMContentLoaded', async function(){
+    const calendarEl = document.getElementById('calendar');
+    
+    currentAiring = await getCachedAnimeEvents();
+    console.log('📺 currentAiring:', currentAiring);
+
+    const calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        height: 'auto',
+        headerToolbar: {
+          left: 'prev,next today',
+          center: 'title',
+          right: 'dayGridMonth,dayGridWeek'
+        },
+        buttonText:{
+          today: 'Today',
+          month: 'Month',
+          week: 'Week'
+        },
+        eventColor: 'navyblue',
+        eventTextColor: 'black',
+
+        
+        eventDidMount: function(info) {
+          info.el.setAttribute('title', `${info.event.title} - Air Date: ${info.event.start.toLocaleDateString()}`);
+        }
+
+      });
+      calendar.render();
+
+      setupSearch(calendar);
+
+      const addedList = document.getElementById('added-anime-list');
+      await loadUserAnimeList(calendar, addedList);
+    });
+
+    function generateEpisodes(anime) {
+      const episodes = anime.episodes || 12; // fallback to 12 if unknown
+      const startDateStr = anime.aired.from;
+      if (!startDateStr) return [];
+    
+      const startDate = new Date(startDateStr);
+      let episodeEvents = [];
+    
+      for (let i = 0; i < episodes; i++) {
+        let episodeDate = new Date(startDate);
+        episodeDate.setDate(startDate.getDate() + i * 7); // weekly episodes
+        
+        episodeEvents.push({
+          title: `${anime.title} Episode ${i + 1}`,
+          start: episodeDate.toISOString().split('T')[0],
+        });
+      }
+      return episodeEvents;
+    }
+
+    async function getCachedAnimeEvents() {
+      const cacheKey = 'animeEvents';
+      const cacheTTL = 1000 * 60 * 5; // 5 minutes
+      const cached = localStorage.getItem(cacheKey);
+    
+      if (cached) {
+        const { timestamp, data } = JSON.parse(cached);
+        if (Date.now() - timestamp < cacheTTL) {
+          console.log('✅ Loaded anime events from cache');
+          return removeDuplicateTitles(data);
+        } else {
+          console.log('⏰ Cache expired, fetching new data...');
+        }
+      }
+    
+      const data = await fetchAnimeEvents();
+      const uniqueData = removeDuplicateTitles(data);
+
+      localStorage.setItem(cacheKey, JSON.stringify({
+        timestamp: Date.now(),
+        data
+      }));
+      return uniqueData;
+    }
+
+    function removeDuplicateTitles(animeList) {
+      const seen = new Set();
+      return animeList.filter(anime => {
+        const title = anime.title;
+        if (seen.has(anime.title)) return false;
+        seen.add(title);
+        return true;
+      });
+    }
+
+    function setupSearch(calendar){
+      const input = document.getElementById('anime-search');
+      const resultsList = document.getElementById('anime-results');
+      const addedList = document.getElementById('added-anime-list');
+
+      input.addEventListener('input', () => {
+        const query = input.value.toLowerCase();
+        resultsList.innerHTML = '';
+        if (!query) return;
+
+        const filtered = currentAiring.filter(anime => 
+          anime.title.toLowerCase().startsWith(query)
+        ). slice(0, 10)
+
+          filtered.forEach(anime => {
+            const li = document.createElement('li');
+            li.innerHTML= highlightMatch(anime.title, query);
+            li.style.cursor = 'pointer';
+            li.style.padding = '4px';
+            li.style.borderBottom = '1px solid #ccc';
+
+            li.onclick = () => {
+              if (addedAnime.includes(anime.title)) return; 
+              addedAnime.push(anime.title);
+              const events = generateEpisodes(anime);
+              calendar.addEventSource(events);
+
+              const item = document.createElement('div');
+              item.textContent = anime.title;
+              const removeBtn = document.createElement('button');
+              removeBtn.textContent = '✖'; 
+              removeBtn.classList.add('remove-btn');
+              removeBtn.title = 'Remove from calendar';
+              removeBtn.onclick = () => {
+                calendar.getEvents().forEach(e=> {
+                  if(e.title.startsWith(anime.title)) e.remove();
+                });
+                addedAnime = addedAnime.filter (t => t !== anime.title);
+                addedList.removeChild(item);
+                saveUserAnimeList();
+                };
+                item.appendChild(removeBtn);
+                addedList.appendChild(item);
+                saveUserAnimeList();
+
+                resultsList.innerHTML = '';
+                input.value = '';
+              };
+              resultsList.appendChild(li);
+          });
+    });
+
+    
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      const topResult = resultsList.querySelector('li');
+      if (topResult) {
+        topResult.click(); // simulate clicking it
+      }
+    }
+  });
+    input.addEventListener('blur', () => {
+      setTimeout(() => {
+        resultsList.innerHTML = '';
+      }, 200); // Delay to allow click event to register
+    });
+  }
+
+  function highlightMatch(text, query) {
+    const index = text.toLowerCase().indexOf(query.toLowerCase());
+    if (index === -1) return text;
+    return text.substring(0, index) + '<strong>' + text.substring(index, index + query.length) + '</strong>' + text.substring(index + query.length);
+  }
+  
+
+    async function fetchAnimeEvents() {
+      try {
+        const res = await fetch('https://api.jikan.moe/v4/seasons/now'); // currently airing
+        const data = await res.json();
+        
+        return data.data
+
+      } catch (err) {
+        console.error('Error fetching anime events:', err);
+        return [];
+      }
+    }
+  
+    async function saveUserAnimeList() {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+    
+      try {
+        await fetch('http://localhost:5000/api/user/anime-list', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ animeList: addedAnime })
+        });
+      } catch (err) {
+        console.error('❌ Failed to save anime list:', err);
+      }
+    }   
+
+    async function loadUserAnimeList(calendar, addedList) {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+    
+      try {
+        const res = await fetch('http://localhost:5000/api/user/anime-list', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        const data = await res.json();
+        const savedTitles = data.animeList || [];
+    
+        for (const title of savedTitles) {
+          const anime = currentAiring.find(a => a.title === title);
+          if (!anime) continue;
+    
+          addedAnime.push(anime.title);
+          const events = generateEpisodes(anime);
+          calendar.addEventSource(events);
+    
+          const item = document.createElement('div');
+          item.textContent = anime.title;
+          const removeBtn = document.createElement('button');
+          removeBtn.textContent = '✖'; 
+          removeBtn.classList.add('remove-btn');
+          removeBtn.title = 'Remove from calendar';
+          removeBtn.onclick = () => {
+            calendar.getEvents().forEach(e => {
+              if (e.title.startsWith(anime.title)) e.remove();
+            });
+            addedAnime = addedAnime.filter(t => t !== anime.title);
+            addedList.removeChild(item);
+            saveUserAnimeList(); // save on remove
+          };
+          item.appendChild(removeBtn);
+          addedList.appendChild(item);
+        }
+    
+      } catch (err) {
+        console.error('❌ Failed to load anime list:', err);
+      }
+    }
+    
