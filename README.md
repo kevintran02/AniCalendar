@@ -44,3 +44,25 @@ A dynamic web application that lets you browse top anime, search currently airin
    ```bash
    git clone https://github.com/yourusername/anime-calendar-app.git
    cd anime-calendar-app
+
+2. Go into the backend files and install node module
+
+   ```bash
+    cd backend
+    npm install
+
+3. Create a .env file with the below specs
+
+   ```bash
+    MONGO_URI=your_mongodb_connection_string
+    JWT_SECRET=your_jwt_secret_key
+    PORT=5000
+
+4. Start Backend Server
+   ```bash
+    npm start
+     or
+    node server.js
+
+5. Open index.html into your browser
+
