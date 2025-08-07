@@ -1,3 +1,4 @@
+// Top airing and Top completed anime fetching and display script
 async function fetchTopAiring(){
     const container = document.getElementById('top-airing-container');
 
@@ -476,3 +477,92 @@ document.addEventListener('DOMContentLoaded', async function(){
       }
     }
     
+// Upcoming Page
+document.addEventListener("DOMContentLoaded", async () => {
+  const container = document.getElementById("upcomingContainer");
+  if (!container) {
+    console.error("No container element with id 'upcomingContainer' found.");
+    return;
+  }
+
+  const cacheKey = "cachedAnime";
+  const cacheExpiryKey = "cachedAnimeExpiry";
+  const cacheDuration = 1000 * 60 * 30; // 30 minutes
+
+  const now = Date.now();
+  const cachedData = localStorage.getItem(cacheKey);
+  const cachedExpiry = localStorage.getItem(cacheExpiryKey);
+
+  let animeList = [];
+
+  // Show loading message while fetching
+  container.innerHTML = `<p>Loading upcoming anime...</p>`;
+
+  try {
+    if (cachedData && cachedExpiry && now < parseInt(cachedExpiry)) {
+      animeList = JSON.parse(cachedData);
+      console.log("Loaded upcoming anime from cache");
+    } else {
+      const res = await fetch("https://api.jikan.moe/v4/seasons/upcoming");
+      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+
+      const data = await res.json();
+      animeList = data.data;
+
+      localStorage.setItem(cacheKey, JSON.stringify(animeList));
+      localStorage.setItem(cacheExpiryKey, (now + cacheDuration).toString());
+      console.log("Fetched and cached upcoming anime");
+    }
+  } catch (err) {
+    console.error("Failed to fetch upcoming anime:", err);
+    container.innerHTML = `<p class="error">Failed to load upcoming anime. Please try again later.</p>`;
+    return;
+  }
+
+  // Filter duplicates by title
+  const uniqueAnimeList = [];
+  const titles = new Set();
+
+  for (const anime of animeList) {
+    if (!titles.has(anime.title)) {
+      titles.add(anime.title);
+      uniqueAnimeList.push(anime);
+    }
+  }
+
+  // Clear loading message
+  container.innerHTML = "";
+
+  if (uniqueAnimeList.length === 0) {
+    container.innerHTML = `<p>No upcoming anime found.</p>`;
+    return;
+  }
+
+  uniqueAnimeList.sort((a, b) => {
+    const dateA = a.aired?.from ? new Date(a.aired.from) : null;
+    const dateB = b.aired?.from ? new Date(b.aired.from) : null;
+
+    if (!dateA && !dateB) return 0;       
+    if (!dateA) return 1;              
+    if (!dateB) return -1;               
+    return dateA - dateB;
+  });
+
+  // Create anime cards
+  uniqueAnimeList.slice(0, 20).forEach(anime => {
+    const card = document.createElement("div");
+    card.classList.add("upcoming-anime-card");
+
+    // Safe image URL fallback if image missing
+    const imgSrc = anime.images?.jpg?.image_url || "placeholder.jpg";
+    const airDate = anime.aired?.from ? new Date(anime.aired.from).toLocaleDateString() : "TBA";
+
+    card.innerHTML = `
+      <img src="${imgSrc}" alt="${anime.title}" class="upcoming-anime-img" loading="lazy" />
+      <h3 class="anime-title">${anime.title}</h3>
+      <p class="anime-date">Airing: ${airDate}</p>
+    `;
+
+    container.appendChild(card);
+  });
+});
